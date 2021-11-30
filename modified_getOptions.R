@@ -15,7 +15,7 @@
       stop("package:",dQuote("jsonlite"),"cannot be loaded.")
     
     NewToOld <- function(x) {
-      if(is.null(x) || length(x) < 1)
+      if(is.null(x) || length(x) <= 1)
         return(NULL)
       # clean up colnames, in case there's weirdness in the JSON
       names(x) <- tolower(gsub("[[:space:]]", "", names(x)))
