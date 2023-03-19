@@ -1,3 +1,9 @@
+require(quantmod)
+require(lubridate)
+require(plyr)
+
+rm(list = ls())
+
 {
   `getOptionChain` <-
     function(Symbols, Exp=NULL, src="yahoo", ...) {
@@ -101,4 +107,35 @@
   }
   
 }
+
+
+# EXAMPLE to get all expiration in a single data.frame object
+get_option_data <- function(tic) {
+  ds <- getOptionChain.yahoo(tic,NULL)
+  ds <- lapply(ds, function(ds_i) lapply(1:length(ds_i), 
+                                         function(i) data.frame(Type = names(ds_i)[i], ds_i[[i]]))  )
+  ds <- lapply(ds, function(ds_i) do.call(plyr::rbind.fill,ds_i)  )
+  ds <- do.call(plyr::rbind.fill,ds)
+  
+  ds$tic <- tic
+  ds$Date <- date(ds$lastTradeDate )
+  ds$Expiration <- date(ds$expiration)
+  today_date <- as.character(today())
+  today_date <- paste(strsplit(today_date,"-")[[1]],collapse = "_")
+  
+  ds$expiration <- date( ds$expiration)
+  ds$lastTradeDate <- date(ds$lastTradeDate)
+  ds$tau <- as.numeric(ds$expiration - ds$lastTradeDate)/252
+  ds$mid <- (ds$ask + ds$bid)/2
+  ds1 <- ds
+  # add spot price
+  S <- get(getSymbols(sym))[,6]
+  ds2 <- data.frame(lastTradeDate = date(S), Spot = as.numeric(S))
+  ds12 <- merge(ds1,ds2, by = c("lastTradeDate"))
+  
+  return(ds12)
+}
+
+
+
 
