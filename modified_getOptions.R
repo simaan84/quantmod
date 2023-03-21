@@ -129,7 +129,7 @@ get_option_data <- function(tic) {
   ds$mid <- (ds$ask + ds$bid)/2
   ds1 <- ds
   # add spot price
-  S <- get(getSymbols(sym))[,6]
+  S <- get(getSymbols(tic))[,6]
   ds2 <- data.frame(lastTradeDate = date(S), Spot = as.numeric(S))
   ds12 <- merge(ds1,ds2, by = c("lastTradeDate"))
   
